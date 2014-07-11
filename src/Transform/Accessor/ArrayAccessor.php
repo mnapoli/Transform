@@ -14,7 +14,7 @@ class ArrayAccessor implements Accessor
         return $data[$field];
     }
 
-    public function setFieldValue($data, $field, $value)
+    public function setFieldValue(&$data, $field, $value)
     {
         $data[$field] = $value;
     }

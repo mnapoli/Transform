@@ -8,7 +8,7 @@ interface Accessor
 
     public function getFieldValue($data, $field);
 
-    public function setFieldValue($data, $field, $value);
+    public function setFieldValue(&$data, $field, $value);
 
     /**
      * @param mixed $data

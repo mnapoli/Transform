@@ -39,11 +39,11 @@ class AccessorDispatcher implements Accessor
         throw new \RuntimeException();
     }
 
-    public function setFieldValue($data, $field, $value)
+    public function setFieldValue(&$data, $field, $value)
     {
         foreach ($this->accessors as $accessor) {
             if ($accessor->supports($data)) {
-                return $accessor->getFieldValue($data, $field);
+                return $accessor->setFieldValue($data, $field, $value);
             }
         }
 

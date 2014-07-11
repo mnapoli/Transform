@@ -18,7 +18,7 @@ class Visitor
         $this->accessor = $accessor ?: new AccessorDispatcher();
     }
 
-    public function visit($source, $target, Mapping $mapping)
+    public function visit($source, &$target, Mapping $mapping)
     {
         foreach ($this->accessor->getFields($source) as $field) {
             $fieldMapping = $mapping->getFieldMapping($field);

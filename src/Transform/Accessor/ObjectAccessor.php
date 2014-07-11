@@ -30,7 +30,7 @@ class ObjectAccessor implements Accessor
         return $property->getValue($data);
     }
 
-    public function setFieldValue($data, $field, $value)
+    public function setFieldValue(&$data, $field, $value)
     {
         $property = new \ReflectionProperty($data, $field);
 

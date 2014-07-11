@@ -3,6 +3,7 @@
 namespace Transform;
 
 use Transform\Mapping\Mapping;
+use Transform\Visitor\Visitor;
 
 class Transformer
 {
@@ -11,11 +12,25 @@ class Transformer
      */
     private $mappings = [];
 
+    /**
+     * @var Visitor
+     */
+    private $visitor;
+
+    public function __construct()
+    {
+        $this->visitor = new Visitor();
+    }
+
     public function transform($data, $target)
     {
         $mapping = $this->getMapping($this->getType($data), $this->getType($target));
 
-        return $data;
+        $result = $this->create($target);
+
+        $this->visitor->visit($data, $result, $mapping);
+
+        return $result;
     }
 
     public function addMapping(Mapping $mapping)
@@ -47,6 +62,30 @@ class Transformer
 
         if (is_object($data)) {
             return get_class($data);
+        }
+
+        throw new \RuntimeException('Unknown type');
+    }
+
+    private function create($type)
+    {
+        if (is_array($type) || is_object($type)) {
+            return $type;
+        }
+
+        if (is_string($type)) {
+            if ($type === 'array') {
+                return [];
+            }
+            if ($type === 'stdClass') {
+                return new \stdClass();
+            }
+
+            if (! class_exists($type)) {
+                throw new \RuntimeException('Unknown class ' . $type);
+            }
+
+            return (new \ReflectionClass($type))->newInstanceWithoutConstructor();
         }
 
         throw new \RuntimeException('Unknown type');
