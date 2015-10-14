@@ -2,92 +2,67 @@
 
 namespace Transform;
 
-use Transform\Mapping\Mapping;
-use Transform\Visitor\Visitor;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 class Transformer
 {
     /**
-     * @var Mapping[]
+     * @var array
      */
-    private $mappings = [];
+    private $configuration = [];
 
     /**
-     * @var Visitor
+     * @var PropertyAccessor
      */
-    private $visitor;
+    private $accessor;
 
-    public function __construct()
+    public function __construct(PropertyAccessor $accessor = null)
     {
-        $this->visitor = new Visitor();
+        $this->accessor = $accessor ?: PropertyAccess::createPropertyAccessor();
     }
 
-    public function transform($data, $target)
+    public function transform($object)
     {
-        $mapping = $this->getMapping($this->getType($data), $this->getType($target));
+        $configuration = $this->configuration[get_class($object)];
 
-        $result = $this->create($target);
-
-        $this->visitor->visit($data, $result, $mapping);
-
-        return $result;
-    }
-
-    public function addMapping(Mapping $mapping)
-    {
-        $this->mappings[] = $mapping;
-    }
-
-    private function getMapping($from, $to)
-    {
-        foreach ($this->mappings as $mapping) {
-            if ($mapping->getFrom() === $from && $mapping->getTo() === $to) {
-                return $mapping;
-            }
-        }
-
-        // Default empty mapping
-        return new Mapping($from, $to);
-    }
-
-    private function getType($data)
-    {
-        if (is_string($data)) {
-            return $data;
-        }
-
-        if (is_array($data)) {
-            return 'array';
-        }
-
-        if (is_object($data)) {
-            return get_class($data);
-        }
-
-        throw new \RuntimeException('Unknown type');
-    }
-
-    private function create($type)
-    {
-        if (is_array($type) || is_object($type)) {
-            return $type;
-        }
-
-        if (is_string($type)) {
-            if ($type === 'array') {
-                return [];
-            }
-            if ($type === 'stdClass') {
-                return new \stdClass();
+        $data = [];
+        foreach ($configuration['fields'] as $property => $propertyConfig) {
+            // Shortcut
+            if (is_int($property)) {
+                $property = $propertyConfig;
+                $propertyConfig = [];
             }
 
-            if (! class_exists($type)) {
-                throw new \RuntimeException('Unknown class ' . $type);
-            }
-
-            return (new \ReflectionClass($type))->newInstanceWithoutConstructor();
+            $data[$property] = $this->readField($object, $property, $propertyConfig);
         }
 
-        throw new \RuntimeException('Unknown type');
+        return $data;
+    }
+
+    public function addConfiguration(array $configuration)
+    {
+        $this->configuration = array_merge($this->configuration, $configuration);
+    }
+
+    private function readField($object, $property, array $propertyConfig)
+    {
+        if (! array_key_exists('get', $propertyConfig)) {
+            return $this->accessor->getValue($object, $property);
+        }
+
+        $get = $propertyConfig['get'];
+
+        // "method()" becomes [$object, 'method']
+        if (is_string($get) && substr($get, -2) === '()') {
+            $method = substr($get, 0, strlen($get) - 2);
+            $get = [$object, $method];
+        }
+
+        if (! is_callable($get)) {
+            throw new \Exception('Unable to resolve ' . $get);
+        }
+
+        return $get();
     }
 }
