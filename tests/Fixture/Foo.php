@@ -22,4 +22,9 @@ class Foo
     {
         return 'foo';
     }
+
+    public function setMethod($a)
+    {
+        // do something
+    }
 }
