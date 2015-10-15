@@ -32,6 +32,12 @@ class TransformTest extends \PHPUnit_Framework_TestCase
                         },
                         'set' => null,
                     ],
+                    'private2' => [
+                        'get' => function () {
+                            return $this->private2;
+                        },
+                        'set' => null,
+                    ],
                 ],
             ],
         ]);
@@ -41,6 +47,7 @@ class TransformTest extends \PHPUnit_Framework_TestCase
             'private' => 'private',
             'method' => 'foo',
             'virtual' => 42,
+            'private2' => 'abc',
         ];
 
         $result = $transformer->transform($object, 'array');
@@ -57,7 +64,7 @@ class TransformTest extends \PHPUnit_Framework_TestCase
             'public' => 'public',
             'private' => 'private',
             'method' => 'foo',
-            'virtual' => 42,
+            'private2' => 42,
         ];
 
         $transformer = new Transformer;
@@ -70,18 +77,23 @@ class TransformTest extends \PHPUnit_Framework_TestCase
                         'get' => null,
                         'set' => 'setMethod()',
                     ],
-                    'virtual' => [
+                    'private2' => [
                         'get' => null,
-                        'set' => function () {
-                            // do something with the object
+                        'set' => function ($value) {
+                            // We are in the object's scope
+                            $this->private2 = $value;
                         },
                     ],
                 ],
             ],
         ]);
 
+        /** @var Foo $object */
         $object = $transformer->transform($data, new Foo);
 
         $this->assertInstanceOf(Foo::class, $object);
+        $this->assertEquals('public', $object->public);
+        $this->assertEquals('private', $object->getPrivate());
+        $this->assertEquals(42, $object->getPrivate2());
     }
 }

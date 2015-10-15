@@ -7,6 +7,7 @@ class Foo
     public $public;
     private $private;
     public $excluded = 'Hello';
+    private $private2 = 'abc';
 
     public function getPrivate()
     {
@@ -26,5 +27,10 @@ class Foo
     public function setMethod($a)
     {
         // do something
+    }
+
+    public function getPrivate2()
+    {
+        return $this->private2;
     }
 }

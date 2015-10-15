@@ -101,6 +101,10 @@ class Transformer
             throw new \Exception('Unable to resolve ' . $get);
         }
 
+        if ($get instanceof \Closure) {
+            $get = $get->bindTo($object, $object);
+        }
+
         return $get();
     }
 
@@ -125,6 +129,10 @@ class Transformer
 
         if (! is_callable($set)) {
             throw new \Exception('Unable to resolve ' . $set);
+        }
+
+        if ($set instanceof \Closure) {
+            $set = $set->bindTo($object, $object);
         }
 
         $set($value);
