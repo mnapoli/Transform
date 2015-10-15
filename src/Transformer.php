@@ -91,6 +91,10 @@ class Transformer
 
         $get = $propertyConfig['get'];
 
+        if ($get === null) {
+            throw new \Exception($property . ' is write-only');
+        }
+
         // "method()" becomes [$object, 'method']
         if (is_string($get) && substr($get, -2) === '()') {
             $method = substr($get, 0, strlen($get) - 2);
