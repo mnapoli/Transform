@@ -5,6 +5,9 @@ namespace Transform;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
+/**
+ * @author Matthieu Napoli <matthieu@mnapoli.fr>
+ */
 class Transformer
 {
     /**
@@ -36,7 +39,7 @@ class Transformer
             return $this->denormalize($from, $to);
         }
 
-        throw new \Exception('Unsupported format ' . $to);
+        throw new \InvalidArgumentException('Unsupported format ' . $to);
     }
 
     private function normalize($object)
@@ -49,6 +52,11 @@ class Transformer
             if (is_int($property)) {
                 $property = $propertyConfig;
                 $propertyConfig = [];
+            }
+
+            if (isset($propertyConfig['get']) && $propertyConfig['get'] === null) {
+                // Not readable
+                continue;
             }
 
             $data[$property] = $this->readField($object, $property, $propertyConfig);
@@ -69,7 +77,7 @@ class Transformer
             }
 
             if (!array_key_exists($property, $data)) {
-                throw new \Exception('Missing ' . $property);
+                throw new TransformationException('Missing field ' . $property);
             }
 
             $this->writeField($object, $property, $propertyConfig, $data[$property]);
@@ -91,10 +99,6 @@ class Transformer
 
         $get = $propertyConfig['get'];
 
-        if ($get === null) {
-            throw new \Exception($property . ' is write-only');
-        }
-
         // "method()" becomes [$object, 'method']
         if (is_string($get) && substr($get, -2) === '()') {
             $method = substr($get, 0, strlen($get) - 2);
@@ -102,7 +106,7 @@ class Transformer
         }
 
         if (! is_callable($get)) {
-            throw new \Exception('Unable to resolve ' . $get);
+            throw new TransformationException($get . ' is not callable');
         }
 
         if ($get instanceof \Closure) {
@@ -122,7 +126,8 @@ class Transformer
         $set = $propertyConfig['set'];
 
         if ($set === null) {
-            throw new \Exception($property . ' is read-only');
+            // Not writable
+            return;
         }
 
         // "method()" becomes [$object, 'method']
@@ -132,7 +137,7 @@ class Transformer
         }
 
         if (! is_callable($set)) {
-            throw new \Exception('Unable to resolve ' . $set);
+            throw new TransformationException($set . ' is not callable');
         }
 
         if ($set instanceof \Closure) {

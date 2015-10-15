@@ -3,6 +3,7 @@
 namespace Transform\Test;
 
 use Transform\Test\Fixture\Foo;
+use Transform\TransformationException;
 use Transform\Transformer;
 
 class TransformTest extends \PHPUnit_Framework_TestCase
