@@ -29,21 +29,19 @@ You can transform from and to arrays and objects.
 Use configuration to define how to map objects to arrays:
 
 ```php
-$mapping = [
+$transformer->addMapping([
     User::class => [
         'fields' => [
             'name',
             'password',
         ],
     ],
-];
-
-$transformer->addMapping($mapping);
+]);
 
 $data = $transformer->transform($user, 'array');
 ```
 
-### Properties
+## Properties
 
 ```php
 class User
@@ -68,7 +66,7 @@ class User
     ],
 ```
 
-### Getters and setters
+## Getters and setters
 
 You can configure specific methods to be called where reading or setting the value:
 
@@ -91,7 +89,7 @@ class User
     ],
 ```
 
-### Accessors
+## Accessors
 
 You can use PHP callables to define how to set and get a field:
 
