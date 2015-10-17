@@ -3,7 +3,6 @@
 namespace Transform\Test;
 
 use Transform\Test\Fixture\Foo;
-use Transform\TransformationException;
 use Transform\Transformer;
 
 class TransformTest extends \PHPUnit_Framework_TestCase
@@ -18,7 +17,7 @@ class TransformTest extends \PHPUnit_Framework_TestCase
         $object->setPrivate('private');
 
         $transformer = new Transformer;
-        $transformer->addConfiguration([
+        $transformer->addMapping([
             Foo::class => [
                 'fields' => [
                     'public',
@@ -69,7 +68,7 @@ class TransformTest extends \PHPUnit_Framework_TestCase
         ];
 
         $transformer = new Transformer;
-        $transformer->addConfiguration([
+        $transformer->addMapping([
             Foo::class => [
                 'fields' => [
                     'public',

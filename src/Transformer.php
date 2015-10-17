@@ -86,7 +86,7 @@ class Transformer
         return $object;
     }
 
-    public function addConfiguration(array $configuration)
+    public function addMapping(array $configuration)
     {
         $this->configuration = array_merge($this->configuration, $configuration);
     }
