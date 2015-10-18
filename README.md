@@ -3,6 +3,8 @@ Transform
 
 Transform data from a format to another, e.g. models, arrays, DTOs…
 
+[![Build Status](https://img.shields.io/travis/mnapoli/Transform.svg?style=flat-square)](https://travis-ci.org/mnapoli/Transform)
+
 # Usage
 
 Using the transformer is pretty simple:
