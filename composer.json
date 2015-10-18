@@ -2,6 +2,8 @@
     "name": "mnapoli/transform",
     "license": "MIT",
     "type": "library",
+    "description": "Transform [objects, array] to [objects, array]",
+    "keywords": ["transform", "serialize", "dto", "normalize"],
     "autoload": {
         "psr-4": {
             "Transform\\": "src/"
