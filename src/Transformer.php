@@ -35,6 +35,10 @@ class Transformer
             return $from;
         }
 
+        if (is_string($to) && class_exists($to)) {
+            $to = new $to();
+        }
+
         if (is_object($to)) {
             return $this->denormalize($from, $to);
         }
@@ -59,7 +63,17 @@ class Transformer
                 continue;
             }
 
-            $data[$property] = $this->readField($object, $property, $propertyConfig);
+            $value = $this->readField($object, $property, $propertyConfig);
+
+            if (is_resource($value)) {
+                throw new TransformationException('Cannot normalize resources');
+            }
+
+            if (is_object($value)) {
+                $value = $this->transform($value, 'array');
+            }
+
+            $data[$property] = $value;
         }
 
         return $data;
@@ -80,7 +94,13 @@ class Transformer
                 throw new TransformationException('Missing field ' . $property);
             }
 
-            $this->writeField($object, $property, $propertyConfig, $data[$property]);
+            $value = $data[$property];
+
+            if (isset($propertyConfig['type'])) {
+                $value = $this->transform($value, $propertyConfig['type']);
+            }
+
+            $this->writeField($object, $property, $propertyConfig, $value);
         }
 
         return $object;

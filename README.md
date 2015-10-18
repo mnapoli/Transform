@@ -129,3 +129,27 @@ You can mark a field as read-only or write-only by setting a `null` accessor:
         ],
     ],
 ```
+
+## Field types
+
+You can declare the types of each field using the `type` index:
+
+```php
+class Product
+{
+    /**
+     * @var Price
+     */
+    private $price;
+}
+
+// ...
+
+    Product::class => [
+        'fields' => [
+            'price' => [
+                'type' => Price::class,
+            ],
+        ],
+    ],
+```

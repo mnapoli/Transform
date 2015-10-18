@@ -2,6 +2,8 @@
 
 namespace Transform\Test;
 
+use Transform\Test\Fixture\A;
+use Transform\Test\Fixture\B;
 use Transform\Test\Fixture\Foo;
 use Transform\Transformer;
 
@@ -95,5 +97,44 @@ class TransformTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('public', $object->public);
         $this->assertEquals('private', $object->getPrivate());
         $this->assertEquals(42, $object->getPrivate2());
+    }
+
+    /**
+     * @test
+     */
+    public function transform_sub_objects()
+    {
+        $data = [
+            'b' => [
+                'foo' => 'bar',
+            ],
+        ];
+
+        $transformer = new Transformer;
+        $transformer->addMapping([
+            A::class => [
+                'fields' => [
+                    'b' => [
+                        'type' => B::class,
+                    ],
+                ],
+            ],
+            B::class => [
+                'fields' => [
+                    'foo',
+                ],
+            ],
+        ]);
+
+        // From array to object
+        /** @var A $a */
+        $a = $transformer->transform($data, new A);
+        $this->assertInstanceOf(A::class, $a);
+        $this->assertInstanceOf(B::class, $a->b);
+        $this->assertEquals('bar', $a->b->foo);
+
+        // From object to array
+        $newData = $transformer->transform($a, 'array');
+        $this->assertEquals($data, $newData);
     }
 }
